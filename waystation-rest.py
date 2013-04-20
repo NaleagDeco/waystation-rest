@@ -6,6 +6,8 @@ from sqlalchemy.ext.declarative import declarative_base
 
 #from objects import Sighting
 
+NUM_SIGHTINGS = 50
+
 # Set up SQLAlchemy
 Base = declarative_base()
 
@@ -20,6 +22,7 @@ class Sighting(Base):
     timestamp = Column(Integer)
     country = Column(String)
     stateprov = Column(String)
+    city = Column(String)
 
     def to_dict(self):
         return dict(lat=self.lat,
@@ -28,6 +31,7 @@ class Sighting(Base):
                     date=self.timestamp,
                     country=self.country,
                     stateprov=self.stateprov,
+                    city=self.city,
                     )
 engine = create_engine('sqlite:///:memory:', echo=True)
 
@@ -60,6 +64,7 @@ def create_sighting(db):
         user=request.forms.get('user'),
         country=request.forms.get('country'),
         stateprov=request.forms.get('stateprov'),
+        city=request.forms.get('city'),
         timestamp=request.forms.get('timestamp'),
     )
     sighting = Sighting(**form_params)
@@ -82,14 +87,17 @@ def get_sighting(id, db):
         abort(404, 'Sighting not found')
 
 
-@route('/sightings/<lat>/<long>', method='GET')
-def get_local_sightings():
-    pass
+@route('/sightings/<country>/<stateprov>/<city>', method='GET')
+def get_local_sightings(country, stateprov, city, db):
+    sightings = db.query(Sighting).filter_by(country=country)
+    sightings = sightings.filter_by(stateprov=stateprov)
+    sightings = sightings.filter_by(city=city).order_by(Sighting.timestamp)
+
+    return template('sightings', sightings=sightings[0:NUM_SIGHTINGS])
 
 
 @route('/sightings', method='GET')
 def get_latest_sightings(db):
-    NUM_SIGHTINGS = 50
     sightings = db.query(Sighting).order_by(Sighting.timestamp)
 
     return template('sightings', sightings=sightings[0:NUM_SIGHTINGS])
