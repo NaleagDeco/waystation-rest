@@ -3,3 +3,4 @@ googlemaps
 sqlalchemy
 bottle
 bottle-sqlalchemy
+gevent

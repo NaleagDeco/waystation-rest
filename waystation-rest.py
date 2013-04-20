@@ -1,10 +1,14 @@
+import os
 import bottle
-from bottle import route, run, template, abort, request
+from bottle import template, abort, request, run
 from bottle.ext import sqlalchemy
 from sqlalchemy import create_engine, Column, Float, String, Integer
 from sqlalchemy.ext.declarative import declarative_base
 
 #from objects import Sighting
+
+app = bottle.Bottle()
+database_url = os.environ.get("DATABASE_URL", "sqlite:///:memory:")
 
 NUM_SIGHTINGS = 50
 
@@ -33,7 +37,7 @@ class Sighting(Base):
                     stateprov=self.stateprov,
                     city=self.city,
                     )
-engine = create_engine('sqlite:///:memory:', echo=True)
+engine = create_engine(database_url, echo=True)
 
 plugin = sqlalchemy.Plugin(
     # SQLAlchemy engine created with create_engine function.
@@ -52,11 +56,11 @@ plugin = sqlalchemy.Plugin(
     # plugin uses **kwargs argument to inject session database (default False)
     use_kwargs=False,
 )
-bottle.install(plugin)
+app.install(plugin)
 
 
 ## Routes
-@route('/sightings', method='POST')
+@app.route('/sightings', method='POST')
 def create_sighting(db):
     form_params = dict(
         lat=request.forms.get('lat'),
@@ -77,7 +81,7 @@ def create_sighting(db):
     )
 
 
-@route('/sightings/<id>', method='GET')
+@app.route('/sightings/<id>', method='GET')
 def get_sighting(id, db):
     sighting = db.query(Sighting).filter(Sighting.id == id).first()
 
@@ -87,7 +91,7 @@ def get_sighting(id, db):
         abort(404, 'Sighting not found')
 
 
-@route('/sightings/<country>/<stateprov>/<city>', method='GET')
+@app.route('/sightings/<country>/<stateprov>/<city>', method='GET')
 def get_local_sightings(country, stateprov, city, db):
     sightings = db.query(Sighting).filter_by(country=country)
     sightings = sightings.filter_by(stateprov=stateprov)
@@ -96,11 +100,11 @@ def get_local_sightings(country, stateprov, city, db):
     return template('sightings', sightings=sightings[0:NUM_SIGHTINGS])
 
 
-@route('/sightings', method='GET')
+@app.route('/sightings', method='GET')
 def get_latest_sightings(db):
     sightings = db.query(Sighting).order_by(Sighting.timestamp)
 
     return template('sightings', sightings=sightings[0:NUM_SIGHTINGS])
 
 
-run(host='localhost', port=8080, debug=True)
+run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 3000)))
