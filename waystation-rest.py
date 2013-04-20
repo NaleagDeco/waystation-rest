@@ -79,7 +79,7 @@ def get_sighting(id, db):
     if sighting:
         return template('sighting', **sighting.to_dict())
     else:
-        abort('404')
+        abort(404, 'Sighting not found')
 
 
 @route('/sightings/<lat>/<long>', method='GET')
