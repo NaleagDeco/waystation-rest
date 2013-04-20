@@ -1,1 +1,1 @@
-web: waystation-rest.py
+web: python ./waystation-rest.py
