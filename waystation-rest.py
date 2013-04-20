@@ -60,6 +60,11 @@ app.install(plugin)
 
 
 ## Routes
+@app.route('/', method='GET')
+def hello():
+    return "waystation-rest is running w/ DATABASE_URL = " + database_url
+
+
 @app.route('/sightings', method='POST')
 def create_sighting(db):
     form_params = dict(
