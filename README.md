@@ -16,6 +16,7 @@ Parameters:
 * country
 * stateprov
 * city
+
 Returns HTTP Code 201, Location: header contains URL for new sighting.
 
 To view a particular sighting:
@@ -36,4 +37,4 @@ Installation
 4. Install dependencies with `pip install -r requirements.txt`
 5. Run webserver with `python ./waystation-rest.py`
 
-Default listener is on 127.0.0.1:8080
+Default listener is on 0.0.0.0:3000
