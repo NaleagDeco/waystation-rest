@@ -112,4 +112,4 @@ def get_latest_sightings(db):
     return template('sightings', sightings=sightings[0:NUM_SIGHTINGS])
 
 
-run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 3000)))
+run(app, server="gevent", host="0.0.0.0", port=os.environ.get("PORT", 3000))
