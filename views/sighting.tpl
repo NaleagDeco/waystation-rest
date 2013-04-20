@@ -2,7 +2,7 @@
 	'lat': {{ lat}},
 	'lng': {{ lng }},
 	'user': {{ user }},
-	'date': {{ timestamp }},
+	'date': {{ date }},
 	'country': {{ country }},
 	'stateprov': {{ stateprov }},
 }

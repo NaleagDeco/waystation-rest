@@ -5,24 +5,17 @@ from sqlalchemy import Column, Integer, String, Float, Date
 
 Base = declarative_base()
 
-def Sighting(Base):
+
+class Sighting(Base):
     __tablename__ = 'sightings'
 
     id = Column(Integer, primary_key=True)
     lat = Column(Float)
     lng = Column(Float)
     user = Column(String)
-    timestamp = Column(Date)
+    timestamp = Column(Integer)
     country = Column(String)
     stateprov = Column(String)
-
-    def __init__(self, lat, lng, user, photo, timestamp, country, stateprov):
-        self.lat = lat
-        self.lng = lng
-        self.user = user
-        self.timestamp = timestamp
-        self.country = country
-        self.stateprov = stateprov
 
     def to_dict(self):
         return dict(lat=self.lat,
