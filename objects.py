@@ -1,10 +1,16 @@
+# import PIL
+# import googlemaps
+
+
 def Sighting(Object):
-    def __init__(self, lat, long, user, photo, timestamp):
+    def __init__(self, lat, long, user, photo, timestamp, country, stateprov):
         self.lat = lat
         self.long = long
         self.user = user
         self.picture = photo
         self.timestamp = timestamp
+        self.country = country
+        self.stateprov = stateprov
 
     def lat():
         doc = "The lat property."
@@ -61,3 +67,25 @@ def Sighting(Object):
             del self._timestamp
         return locals()
     timestamp = property(**timestamp())
+
+    def country():
+        doc = "The country property."
+        def fget(self):
+            return self._country
+        def fset(self, value):
+            self._country = value
+        def fdel(self):
+            del self._country
+        return locals()
+    country = property(**country())
+
+    def stateprov():
+        doc = "The stateprov property."
+        def fget(self):
+            return self._stateprov
+        def fset(self, value):
+            self._stateprov = value
+        def fdel(self):
+            del self._stateprov
+        return locals()
+    stateprov = property(**stateprov())
