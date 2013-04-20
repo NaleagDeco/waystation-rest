@@ -88,8 +88,11 @@ def get_local_sightings():
 
 
 @route('/sightings', method='GET')
-def get_latest_sightings():
-    pass
+def get_latest_sightings(db):
+    NUM_SIGHTINGS = 50
+    sightings = db.query(Sighting).order_by(Sighting.timestamp)
+
+    return template('sightings', sightings=sightings[0:NUM_SIGHTINGS])
 
 
 run(host='localhost', port=8080, debug=True)
