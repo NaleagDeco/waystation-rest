@@ -3,3 +3,4 @@
 sqlalchemy
 bottle
 bottle-sqlalchemy
+psycopg2
