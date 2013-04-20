@@ -1,7 +1,7 @@
 {
 	'lat': {{ lat }},
 	'lng': {{ lng }},
-	'user': {{ user }},
+	'name': {{ name }},
 	'date': {{ date }},
 	'country': {{ country }},
 	'stateprov': {{ stateprov }},

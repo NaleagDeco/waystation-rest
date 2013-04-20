@@ -18,7 +18,7 @@ class Sighting(Base):
     id = Column(Integer, primary_key=True)
     lat = Column(Float)
     lng = Column(Float)
-    user = Column(String)
+    name = Column(String)
     timestamp = Column(Integer)
     country = Column(String)
     stateprov = Column(String)
@@ -27,7 +27,7 @@ class Sighting(Base):
     def to_dict(self):
         return dict(lat=self.lat,
                     lng=self.lng,
-                    user=self.user,
+                    name=self.name,
                     date=self.timestamp,
                     country=self.country,
                     stateprov=self.stateprov,
@@ -61,7 +61,7 @@ def create_sighting(db):
     form_params = dict(
         lat=request.forms.get('lat'),
         lng=request.forms.get('lng'),
-        user=request.forms.get('user'),
+        name=request.forms.get('name'),
         country=request.forms.get('country'),
         stateprov=request.forms.get('stateprov'),
         city=request.forms.get('city'),
