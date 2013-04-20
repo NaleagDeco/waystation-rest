@@ -1,5 +1,5 @@
 import bottle
-from bottle import route, run
+from bottle import route, run, template, abort
 from bottle.ext import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -33,7 +33,17 @@ bottle.install(plugin)
 ## Routes
 @route('/sightings', method='POST')
 def create_sighting():
-    pass
+    sighting = Sighting()
+
+
+@route('/sightings/<id>', method='GET')
+def get_sighting(id, db):
+    sighting = db.query(Sighting).filter(Sighting.id == id)
+
+    if sighting:
+        return template('sighting', kwargs=sighting.to_dict())
+    else:
+        abort('404')
 
 
 @route('/sightings/<lat>/<long>', method='GET')
