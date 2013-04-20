@@ -1,2 +1,4 @@
 PIL
 googlemaps
+sqlalchemy
+bottle-sqlalchemy
