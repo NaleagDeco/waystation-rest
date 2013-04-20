@@ -1,6 +1,5 @@
-PIL
-googlemaps
+#PIL
+#googlemaps
 sqlalchemy
 bottle
 bottle-sqlalchemy
-gevent
