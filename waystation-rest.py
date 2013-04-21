@@ -25,7 +25,7 @@ class Sighting(Base):
     lat = Column(Float)
     lng = Column(Float)
     name = Column(String)
-    timestamp = Column(Integer)
+    timestamp = Column(Float)
     country = Column(String)
     stateprov = Column(String)
     city = Column(String)
@@ -34,7 +34,7 @@ class Sighting(Base):
         return dict(lat=self.lat,
                     lng=self.lng,
                     name=self.name,
-                    date=self.timestamp,
+                    timestamp=self.timestamp,
                     country=self.country,
                     stateprov=self.stateprov,
                     city=self.city,
@@ -79,13 +79,13 @@ def hello():
 @app.route('/sightings', method='POST')
 def create_sighting(db):
     form_params = dict(
-        lat=request.forms.get('lat'),
-        lng=request.forms.get('lng'),
+        lat=float(request.forms.get('lat')),
+        lng=float(request.forms.get('lng')),
         name=request.forms.get('name'),
         country=request.forms.get('country'),
         stateprov=request.forms.get('stateprov'),
         city=request.forms.get('city'),
-        timestamp=request.forms.get('timestamp'),
+        timestamp=float(request.forms.get('timestamp')),
     )
     sighting = Sighting(**form_params)
     db.add(sighting)
