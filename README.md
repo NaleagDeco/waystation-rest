@@ -28,6 +28,9 @@ To view 50 recent sightings:
 To view 50 recent sightings in your area:
 `/sightings/<country>/<stateprov>/<city>` (GET)
 
+To get a KML of all sighting points thus far:
+`/sightings/kml` (GET)
+
 Installation
 ------------
 
@@ -38,3 +41,4 @@ Installation
 5. Run webserver with `python ./waystation-rest.py`
 
 Default listener is on 0.0.0.0:3000
+This software is Heroku-friendly.
