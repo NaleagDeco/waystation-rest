@@ -191,7 +191,7 @@ def get_current_iss_projection():
             timestamp=(now - UNIX_EPOCH).total_seconds(),
             iss_position=dict(
                 latitude=my_iss.sublat,
-                longitute=my_iss.sublong
+                longitude=my_iss.sublong
             )
         )
     )
