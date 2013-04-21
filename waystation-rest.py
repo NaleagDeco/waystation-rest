@@ -163,6 +163,7 @@ def get_next_iss_pass(timestamp, lat, lng, db):
     location.date = ephem.Date(datetime.datetime.fromtimestamp(timestamp))
     passes.append(location.next_pass(iss))
 
+    # Let's try to get about 9 predictions.
     for _ in range(9):
         # 5th element in tuple is set time
         # We will add 1/2 hour to set time to predict the next pass
@@ -176,6 +177,26 @@ def get_next_iss_pass(timestamp, lat, lng, db):
 
     result = map(lambda x: (deweird_date(x[0]), deweird_date(x[4])), passes)
     return json.dumps(result)
+
+
+@app.route('/iss/current_projection', method='GET')
+def get_current_iss_projection():
+    now = datetime.datetime.utcnow()
+    my_iss = ephem.readtle(name, line1, line2)
+    my_iss.compute(now)
+
+    body = dict(
+        message='success',
+        data=dict(
+            timestamp=(now - UNIX_EPOCH).total_seconds(),
+            iss_position=dict(
+                latitude=my_iss.sublat,
+                longitute=my_iss.sublong
+            )
+        )
+    )
+
+    return json.dumps(body)
 
 
 run(app, host="0.0.0.0", port=os.environ.get("PORT", 3000))
