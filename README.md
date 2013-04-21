@@ -31,6 +31,11 @@ To view 50 recent sightings in your area:
 To get a KML of all sighting points thus far:
 `/sightings/kml` (GET)
 
+Get a json set of the next few rise/set timestamps of the ISS for your location
+`/iss/<timestamp>/<latitude>/<longitude>` (GET)
+Returns an JSON array of "tuples", containing pairs of the following format:
+`[<rise_timestamp>, <set_timestamp>]`
+
 Installation
 ------------
 
