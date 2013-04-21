@@ -1,7 +1,9 @@
 import os
+
 import bottle
 from bottle import template, abort, request, run
 from bottle.ext import sqlalchemy
+import simplekml
 from sqlalchemy import create_engine, Column, Float, String, Integer
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -37,6 +39,15 @@ class Sighting(Base):
                     stateprov=self.stateprov,
                     city=self.city,
                     )
+
+    @property
+    def coords(self):
+        return (self.lat, self.lng)
+
+    @property
+    def location(self):
+        return ", ".join([self.city, self.stateprov, self.country])
+
 engine = create_engine(database_url, echo=True)
 
 plugin = sqlalchemy.Plugin(
@@ -111,5 +122,18 @@ def get_latest_sightings(db):
 
     return template('sightings', sightings=sightings[0:NUM_SIGHTINGS])
 
+
+@app.route('/sightings/kml', method='GET')
+def generate_kml(db):
+    sightings = db.query(Sighting).order_by(Sighting.timestamp)
+
+    kml = simplekml.Kml()
+    for sighting in sightings:
+        kml.newpoint(
+            name=sighting.name,
+            description=sighting.location,
+            coords=[sighting.coords]
+        )
+    return kml.kml()
 
 run(app, host="0.0.0.0", port=os.environ.get("PORT", 3000))

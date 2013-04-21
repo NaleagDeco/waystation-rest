@@ -1,5 +1,6 @@
 #PIL
 #googlemaps
+simplekml
 sqlalchemy
 bottle
 bottle-sqlalchemy
