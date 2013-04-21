@@ -5,3 +5,4 @@ sqlalchemy
 bottle
 bottle-sqlalchemy
 psycopg2
+pyephem

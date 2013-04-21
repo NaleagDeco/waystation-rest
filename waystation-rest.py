@@ -1,8 +1,11 @@
 import os
+import datetime
+import json
 
 import bottle
 from bottle import template, abort, request, run
 from bottle.ext import sqlalchemy
+import ephem
 import simplekml
 from sqlalchemy import create_engine, Column, Float, String, Integer
 from sqlalchemy.ext.declarative import declarative_base
@@ -13,9 +16,15 @@ app = bottle.Bottle()
 database_url = os.environ.get("DATABASE_URL", "sqlite:///:memory:")
 
 NUM_SIGHTINGS = 50
+UNIX_EPOCH = datetime.datetime(1970, 1, 1)
 
 # Set up SQLAlchemy
 Base = declarative_base()
+
+name = "ISS (ZARYA)"
+line1 = "1 25544U 98067A   13111.17031100  .00008766  00000-0  14819-3 0  6495"
+line2 = "2 25544  51.6472  31.2384 0010423 164.2523 280.5029 15.52398960825853"
+iss = ephem.readtle(name, line1, line2)
 
 
 class Sighting(Base):
@@ -135,5 +144,38 @@ def generate_kml(db):
             coords=[sighting.coords]
         )
     return kml.kml()
+
+
+def deweird_date(x):
+    # WTF are Ephemeral dates
+    dt = x.datetime() - UNIX_EPOCH
+    return dt.total_seconds()
+
+
+@app.route('/iss/<timestamp:float>/<lat:float>/<lng:float>', method='GET')
+def get_next_iss_pass(timestamp, lat, lng, db):
+
+    passes = []
+
+    location = ephem.Observer()
+    location.lat = lat
+    location.lon = lng
+    location.date = ephem.Date(datetime.datetime.fromtimestamp(timestamp))
+    passes.append(location.next_pass(iss))
+
+    for _ in range(9):
+        # 5th element in tuple is set time
+        # We will add 1/2 hour to set time to predict the next pass
+        location.date = passes[-1][4] + ephem.minute * 30
+        mypass = location.next_pass(iss)
+        if not mypass:
+            # It looks like next_pass returns none if we've advanced
+            # past a moment in time in which a prediction can be made.
+            break
+        passes.append(mypass)
+
+    result = map(lambda x: (deweird_date(x[0]), deweird_date(x[4])), passes)
+    return json.dumps(result)
+
 
 run(app, host="0.0.0.0", port=os.environ.get("PORT", 3000))
