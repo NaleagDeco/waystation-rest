@@ -9,8 +9,26 @@ import ephem
 import simplekml
 from sqlalchemy import create_engine, Column, Float, String, Integer
 from sqlalchemy.ext.declarative import declarative_base
+import requests
 
-#from objects import Sighting
+
+class ISS(object):
+    def __init__(self):
+        self.update()
+
+    @property
+    def iss(self):
+        return ephem.readtle(self.name, self.line1, self.line2)
+
+    def update(self):
+        r = requests.get('http://celestrak.com/NORAD/elements/stations.txt')
+        if r.status_code:
+            body = str(r.text).splitlines(False)
+            self.name = body[0]
+            self.line1 = body[1]
+            self.line2 = body[2]
+
+iss = ISS()
 
 app = bottle.Bottle()
 database_url = os.environ.get("DATABASE_URL", "sqlite:///:memory:")
@@ -20,11 +38,6 @@ UNIX_EPOCH = datetime.datetime(1970, 1, 1)
 
 # Set up SQLAlchemy
 Base = declarative_base()
-
-name = "ISS (ZARYA)"
-line1 = "1 25544U 98067A   13111.17031100  .00008766  00000-0  14819-3 0  6495"
-line2 = "2 25544  51.6472  31.2384 0010423 164.2523 280.5029 15.52398960825853"
-iss = ephem.readtle(name, line1, line2)
 
 
 class Sighting(Base):
@@ -161,14 +174,14 @@ def get_next_iss_pass(timestamp, lat, lng, db):
     location.lat = lat
     location.lon = lng
     location.date = ephem.Date(datetime.datetime.fromtimestamp(timestamp))
-    passes.append(location.next_pass(iss))
+    passes.append(location.next_pass(iss.iss))
 
     # Let's try to get about 9 predictions.
     for _ in range(9):
         # 5th element in tuple is set time
         # We will add 1/2 hour to set time to predict the next pass
         location.date = passes[-1][4] + ephem.minute * 30
-        mypass = location.next_pass(iss)
+        mypass = location.next_pass(iss.iss)
         if not mypass:
             # It looks like next_pass returns none if we've advanced
             # past a moment in time in which a prediction can be made.
@@ -182,7 +195,7 @@ def get_next_iss_pass(timestamp, lat, lng, db):
 @app.route('/iss/current_projection', method='GET')
 def get_current_iss_projection():
     now = datetime.datetime.utcnow()
-    my_iss = ephem.readtle(name, line1, line2)
+    my_iss = iss.iss
     my_iss.compute(now)
 
     body = dict(
@@ -190,13 +203,20 @@ def get_current_iss_projection():
         data=dict(
             timestamp=(now - UNIX_EPOCH).total_seconds(),
             iss_position=dict(
-                latitude=my_iss.sublat,
-                longitude=my_iss.sublong
+                latitude=str(my_iss.sublat),
+                longitude=str(my_iss.sublong)
             )
         )
     )
 
     return json.dumps(body)
+
+
+# You dirty hack, you killed my elegance.
+@app.route('/iss/update_ephem', method='POST')
+def update_iss():
+    iss.update()
+    return bottle.HTTPResponse(status=202)
 
 
 run(app, host="0.0.0.0", port=os.environ.get("PORT", 3000))

@@ -6,3 +6,5 @@ bottle
 bottle-sqlalchemy
 psycopg2
 pyephem
+apscheduler
+requests
