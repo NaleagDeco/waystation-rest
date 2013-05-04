@@ -51,16 +51,19 @@ class Sighting(Base):
     country = Column(String)
     stateprov = Column(String)
     city = Column(String)
+    photo = Column(String, nullable=True)
 
     def to_dict(self):
-        return dict(lat=self.lat,
-                    lng=self.lng,
-                    name=self.name,
-                    timestamp=self.timestamp,
-                    country=self.country,
-                    stateprov=self.stateprov,
-                    city=self.city,
-                    )
+        my_dict = dict(lat=self.lat,
+                       lng=self.lng,
+                       name=self.name,
+                       timestamp=self.timestamp,
+                       country=self.country,
+                       stateprov=self.stateprov,
+                       city=self.city)
+        if self.photo:
+            my_dict['photo'] = self.photo
+        return my_dict
 
     @property
     def coords(self):
@@ -108,6 +111,7 @@ def create_sighting(db):
         stateprov=request.forms.get('stateprov'),
         city=request.forms.get('city'),
         timestamp=float(request.forms.get('timestamp')),
+        photo=request.forms.get('photo')
     )
     sighting = Sighting(**form_params)
     db.add(sighting)

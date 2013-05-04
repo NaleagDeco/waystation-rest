@@ -16,6 +16,7 @@ Parameters:
 * country
 * stateprov
 * city
+* photo (optional, URL of associated photo)
 
 Returns HTTP Code 201, Location: header contains URL for new sighting.
 

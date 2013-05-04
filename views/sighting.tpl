@@ -6,4 +6,7 @@
 	'country': {{ country }},
 	'stateprov': {{ stateprov }},
 	'city': {{ city }}
+	% if photo:
+	,'photo': {{ photo }}
+	% end
 }
